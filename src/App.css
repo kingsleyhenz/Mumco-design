@@ -1,0 +1,175 @@
+/* Page/component styles that sit on top of the global theme in `index.css` */
+:root{
+	--brand-cream: #F6F1EA;
+	--brand-brown: #6B4226;
+	--brand-brown-dark: #4A2B1A;
+}
+
+/* Basic nav link underline animation and color tokens */
+.nav-link{
+	position: relative;
+	color: var(--brand-brown);
+	display: inline-block;
+}
+.nav-link::after{
+	content: '';
+	position: absolute;
+	left: 0;
+	bottom: -6px;
+	height: 2px;
+	width: 0%;
+	background: var(--brand-brown);
+	transition: width .22s ease;
+}
+.nav-link:hover::after, .nav-link:focus::after{
+	width: 100%;
+}
+
+/* mobile panel slide/opacity animation */
+.mobile-panel-open{
+	animation: slideDown .22s ease forwards, fadeIn .18s ease forwards;
+}
+.mobile-panel-closed{
+	display: none;
+}
+
+@keyframes slideDown{
+	from{ transform: translateY(-6px); opacity: 0 }
+	to{ transform: translateY(0); opacity: 1 }
+}
+@keyframes fadeIn{
+	from{ opacity: 0 }
+	to{ opacity: 1 }
+}
+
+/* provide CSS variables to tailwind-friendly classes via utility fallback */
+.bg-brand-cream{ background-color: var(--brand-cream) }
+.text-brand-brown{ color: var(--brand-brown) }
+.text-brand-brown-dark{ color: var(--brand-brown-dark) }
+.hover\:text-brand-brown-dark:hover{ color: var(--brand-brown-dark) }
+
+/* modern navbar styles */
+.logo-badge{ box-shadow: 0 2px 6px rgba(106,66,38,0.12); }
+.nav-pill{ background: transparent; }
+.nav-pill:hover{ transform: translateY(-2px) }
+.cta-btn{ transition: transform .15s ease, box-shadow .15s ease }
+.cta-btn:hover{ transform: translateY(-2px); box-shadow: 0 6px 18px rgba(107,66,38,0.14) }
+
+/* mobile panel slide */
+.mobile-panel-open{ animation: slideDown .22s ease forwards }
+.mobile-panel-closed{ display: none }
+
+/* subtle sticky header shadow */
+header[aria-hidden='false']{ box-shadow: 0 6px 18px rgba(16,24,40,0.04) }
+
+/* gallery / masonry styles */
+.masonry{ column-gap: 1rem }
+.masonry-cols-1{ column-count: 1 }
+.masonry-cols-2{ column-count: 2 }
+.masonry-cols-3{ column-count: 3 }
+
+.gallery-card{ break-inside: avoid; margin-bottom: 1rem; border-radius: 12px; overflow: hidden; position: relative; transition: transform .18s ease, box-shadow .18s ease }
+.gallery-card:focus{ outline: 2px solid rgba(107,66,38,0.12); outline-offset: 3px }
+.gallery-img{ display:block; width:100%; height:auto; transition: transform .32s ease; transform-origin: center; }
+.gallery-card:hover{ transform: translateY(-6px); box-shadow: 0 10px 30px rgba(16,24,40,0.08) }
+.gallery-card:active .gallery-img{ transform: scale(0.98) }
+
+/* responsive adjustments */
+@media (max-width: 1024px){
+	.masonry-cols-3{ column-count: 2 }
+}
+@media (max-width: 640px){
+	.masonry-cols-3, .masonry-cols-2{ column-count: 1 }
+}
+
+/* Verses and DailyInfo styles */
+.verse-card{ background: linear-gradient(180deg, #fff 0%, var(--brand-cream) 100%); border-radius: 12px; border: 1px solid rgba(107,66,38,0.06); }
+.verse-anim{ animation: verseFade .4s ease; }
+@keyframes verseFade{ from{ transform: translateY(6px); opacity: 0 } to{ transform: translateY(0); opacity: 1 } }
+.icon-btn{ display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:8px; background:transparent; border:1px solid rgba(107,66,38,0.06); cursor:pointer }
+.icon-btn:hover{ background: rgba(107,66,38,0.04) }
+.icon-btn.active{ background: linear-gradient(90deg,var(--brand-brown),var(--brand-brown-dark)); color:var(--brand-cream); border:none }
+.circle-arrow{ width:44px; height:44px; border-radius:999px; display:inline-grid; place-items:center; background:var(--brand-cream); border:1px solid rgba(107,66,38,0.06); transition: transform .16s ease, box-shadow .16s ease; cursor:pointer }
+.circle-arrow:hover{ transform: translateY(-4px) scale(1.03); box-shadow: 0 8px 22px rgba(106,66,38,0.12) }
+.circle-arrow:active{ transform: translateY(-1px) scale(.99) }
+.verse-toast{ position: absolute; right: 1rem; top: 1rem; background: rgba(43,27,16,0.9); color: #fff; padding:6px 10px; border-radius:8px; font-size:12px }
+
+.daily-info .badge{ display:inline-block; padding:6px 10px; border-radius:999px; background: linear-gradient(90deg,var(--brand-brown),var(--brand-brown-dark)); color:var(--brand-cream); font-size:12px; font-weight:600 }
+.daily-info .collapsed{ max-height:48px; overflow:hidden }
+.daily-info .expanded{ max-height:400px }
+
+.nav-pill, .cta-btn, .icon-btn, button { cursor: pointer }
+
+/* modal / lightbox */
+.modal-overlay{ position:fixed; inset:0; background:rgba(7,8,9,0.6); display:flex; align-items:center; justify-content:center; z-index:60 }
+.modal-content{ position:relative; width:90%; max-width:900px; border-radius:12px; overflow:hidden; background:#fff; padding:18px; box-shadow: 0 14px 40px rgba(2,6,23,0.35) }
+.modal-image{ width:100%; height:auto; display:block; border-radius:8px }
+.modal-close{ position:absolute; right:10px; top:10px; background:transparent; border:none; font-size:20px; cursor:pointer; color:var(--brand-brown) }
+.modal-controls{ position:absolute; left:12px; right:12px; bottom:12px; display:flex; justify-content:space-between }
+
+/* verses page cards and pagination */
+.verse-card-grid{ border:1px solid rgba(107,66,38,0.04); box-shadow: 0 6px 18px rgba(16,24,40,0.04); }
+.verse-card-grid blockquote{ color: var(--brand-brown); }
+.verse-card-grid:hover{ transform: translateY(-6px); }
+.card-modern{ position:relative; overflow:hidden }
+.card-modern .accent-bar{ position:absolute; left:0; top:0; bottom:0; width:6px; background: linear-gradient(180deg,var(--brand-brown),var(--brand-brown-dark)); opacity:0.9 }
+.chip{ display:inline-block; padding:4px 8px; border-radius:999px; background:#fff; border:1px solid rgba(107,66,38,0.06); font-size:12px }
+.chip.muted{ background:linear-gradient(90deg,#fff,#fff); color:var(--brand-brown); opacity:0.85 }
+.search-input{ padding:10px 12px; border-radius:10px; border:1px solid rgba(107,66,38,0.08); width:100%; max-width:520px }
+
+/* verse modal overrides for detail view (reuses modal styles) */
+.modal-content p{ color:var(--brand-brown); line-height:1.6 }
+.modal-content h2{ color:var(--brand-brown) }
+
+/* modern hero and controls for verses page */
+.verses-hero{ background: linear-gradient(180deg, rgba(255,251,247,0.8), rgba(255,250,245,0.6)); }
+.verses-hero .hero-overlay{ background-image: radial-gradient(circle at 10% 10%, rgba(107,66,38,0.02), transparent 15%), radial-gradient(circle at 90% 80%, rgba(107,66,38,0.015), transparent 12%); }
+.hero-cta{ padding:12px 18px; border-radius:12px; background: linear-gradient(90deg,var(--brand-brown),var(--brand-brown-dark)); color:var(--brand-cream); font-weight:700; box-shadow: 0 8px 30px rgba(107,66,38,0.12); border:none; transition: transform .14s ease, box-shadow .14s ease }
+.hero-cta.ghost{ background:transparent; color:var(--brand-brown); border:1px solid rgba(107,66,38,0.08); box-shadow:none }
+.hero-cta:hover{ transform: translateY(-4px); box-shadow: 0 14px 36px rgba(107,66,38,0.16) }
+.hero-visual .pattern-card{ border-radius:12px; overflow:hidden; box-shadow: 0 10px 32px rgba(16,24,40,0.06) }
+.search-pill{ display:flex; align-items:center; gap:8px; padding:8px 12px; background:rgba(255,255,255,0.85); border-radius:999px; width:100%; max-width:520px; box-shadow: 0 6px 20px rgba(16,24,40,0.06); border:1px solid rgba(107,66,38,0.04) }
+.search-pill .search-icon{ opacity:0.9 }
+.search-input{ border:none; outline:none; background:transparent }
+
+/* tag buttons */
+.tag-btn{ padding:8px 12px; border-radius:999px; background:#fff; border:1px solid rgba(107,66,38,0.06); color:var(--brand-brown); font-weight:600 }
+.tag-btn.active{ background: linear-gradient(90deg,var(--brand-brown),var(--brand-brown-dark)); color:var(--brand-cream); box-shadow: 0 8px 26px rgba(107,66,38,0.12) }
+
+/* modern card (glassmorphism) */
+.card-modern{ background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.72)); border:1px solid rgba(107,66,38,0.06); backdrop-filter: blur(6px); }
+.card-modern .accent-bar{ left: -6px; }
+.card-modern:hover{ transform: translateY(-10px) scale(1.02); box-shadow: 0 20px 50px rgba(16,24,40,0.14) }
+.page-btn{ background:#fff; border:1px solid rgba(16,24,40,0.04); color:var(--brand-brown); padding:8px 12px }
+.page-active{ background: linear-gradient(90deg,var(--brand-brown),var(--brand-brown-dark)); color:var(--brand-cream); padding:8px 12px }
+
+/* small animation for cards entrance */
+.verse-card-grid{ transform-origin:center; transition: transform .28s ease, box-shadow .28s ease }
+.verse-card-grid:hover{ transform: translateY(-8px) }
+
+/* About page styles */
+.about-hero{ background: linear-gradient(180deg, rgba(255,251,247,0.9), rgba(255,250,245,0.7)); }
+.founder-card .founder-photo{ font-weight:700; box-shadow: 0 8px 24px rgba(16,24,40,0.06) }
+.values-grid .value-card{ transition: transform .18s ease, box-shadow .18s ease }
+.values-grid .value-card:hover{ transform: translateY(-6px); box-shadow: 0 14px 40px rgba(16,24,40,0.07) }
+.value-icon{ font-size:20px; color:var(--brand-brown) }
+
+
+
+.pagination button{ cursor:pointer }
+
+
+/* Contact page small helpers */
+.contact-hero{ background: linear-gradient(180deg, rgba(255,251,247,0.95), rgba(255,250,245,0.9)); }
+.contact-card{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px; border-radius:12px; background:linear-gradient(180deg,#fff,#fff); border:1px solid rgba(107,66,38,0.04) }
+.contact-card .label{ font-size:12px; color:var(--brand-brown); font-weight:700 }
+.contact-link{ color:var(--brand-brown); font-weight:600 }
+.icon-btn{ min-width:72px }
+.input{ padding:12px 14px; border-radius:10px; border:1px solid rgba(107,66,38,0.06); background:transparent; color:var(--brand-brown); transition: box-shadow .14s ease, transform .14s ease }
+.input:focus{ outline:2px solid rgba(107,66,38,0.08); box-shadow:0 6px 20px rgba(16,24,40,0.04); transform: translateY(-2px) }
+.input-error{ border-color: rgba(220,38,38,0.9) }
+.toast{ background: linear-gradient(90deg,var(--brand-brown),var(--brand-brown-dark)); color:var(--brand-cream); padding:8px 12px; border-radius:10px; display:inline-block }
+.btn-spinner{ animation: spin 1s linear infinite; opacity:0.95 }
+@keyframes spin{ to{ transform: rotate(360deg) } }
+
+
