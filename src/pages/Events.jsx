@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import api from '../api'
 import toast from 'react-hot-toast'
 import ScrollReveal from '../components/ScrollReveal'
@@ -12,7 +12,136 @@ export default function Events() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // ... previous effects and functions ...
+  const fetchEvents = useCallback(async () => {
+    try {
+      const response = await api.get('/events')
+      const data = response.data?.data || response.data
+      const normalizedData = (Array.isArray(data) ? data : []).map(event => ({
+        ...event,
+        media: [
+          ...(event.images || []).map(url => ({ url, type: 'image' })),
+          ...(event.videos || []).map(url => ({ url, type: 'video' }))
+        ]
+      }))
+      setEvents(normalizedData)
+    } catch (err) {
+      console.error('Fetch error:', err)
+      toast.error('Failed to load events')
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchEvents()
+    setIsAuthenticated(!!localStorage.getItem('mumco_token'))
+  }, [fetchEvents])
+
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files)
+    const newMedia = files.map(file => ({
+      file,
+      url: URL.createObjectURL(file),
+      type: file.type.startsWith('video') ? 'video' : 'image'
+    }))
+    setForm(prev => ({ ...prev, media: [...prev.media, ...newMedia] }))
+  }
+
+  const removeMedia = (index) => {
+    setForm(prev => ({
+      ...prev,
+      media: prev.media.filter((_, i) => i !== index)
+    }))
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+
+    try {
+      const formData = new FormData()
+      formData.append('title', form.title)
+      formData.append('eventDate', form.date)
+      formData.append('description', form.description)
+
+      // Handle files vs existing URLs
+      form.media.forEach(item => {
+        if (item.file) {
+          formData.append('files', item.file)
+        } else if (item.url) {
+          // Send existing URLs to the 'images' or 'videos' arrays in the DTO
+          const field = item.type === 'video' ? 'videos' : 'images'
+          formData.append(field, item.url)
+        }
+      })
+
+      if (isEditing) {
+        await api.patch(`/events/${form.id}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        toast.success('Event updated successfully!')
+      } else {
+        await api.post('/events', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        toast.success('Event created successfully!')
+      }
+      
+      cancelEdit()
+      fetchEvents()
+    } catch (err) {
+      console.error('Submit error:', err)
+      toast.error(err.response?.data?.message || 'Failed to save event')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleEdit = (event) => {
+    setForm({
+      id: event.id,
+      title: event.title,
+      date: (event.eventDate || '').split('T')[0],
+      description: event.description,
+      media: event.media || []
+    })
+    setIsEditing(true)
+    setShowForm(true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this event?')) return
+    try {
+      await api.delete(`/events/${id}`)
+      toast.success('Event deleted')
+      fetchEvents()
+    } catch (err) {
+      toast.error('Failed to delete event')
+    }
+  }
+
+  const cancelEdit = () => {
+    setForm({ id: '', title: '', date: '', description: '', media: [] })
+    setIsEditing(false)
+    setShowForm(false)
+  }
+
+  const handleShare = (event) => {
+    const text = `Check out this MumCo event: ${event.title}\n${event.description}`
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
+  }
+
+  const openModal = (items, index) => setModalData({ items, index })
+  const closeModal = () => setModalData({ items: [], index: -1 })
+  const nextMedia = () => setModalData(prev => ({ ...prev, index: (prev.index + 1) % prev.items.length }))
+  const prevMedia = () => setModalData(prev => ({ ...prev, index: (prev.index - 1 + prev.items.length) % prev.items.length }))
+
+  const getBentoClass = (index, total) => {
+    if (total === 1) return 'md:col-span-4 md:row-span-2'
+    if (total === 2) return 'md:col-span-2 md:row-span-2'
+    if (index === 0) return 'md:col-span-2 md:row-span-2'
+    if (index === 1 && total > 2) return 'md:col-span-2 md:row-span-1'
+    return 'md:col-span-1 md:row-span-1'
+  }
 
   return (
     <div className="space-y-12 pb-20 animate-in fade-in duration-500">
@@ -145,7 +274,7 @@ export default function Events() {
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8 border-l-4 border-brand-primary pl-6">
                   <div className="space-y-2">
                     <span className="py-1 px-3 bg-brand-primary/10 text-brand-primary font-bold text-[10px] rounded-full uppercase tracking-widest">
-                      {new Date(event.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+                      {event.eventDate ? new Date(event.eventDate).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : 'Date TBD'}
                     </span>
                     <h2 className="text-2xl font-bold text-ink tracking-tight leading-tight">{event.title}</h2>
                     <p className="text-sm text-ink/70 font-light leading-relaxed max-w-3xl break-words break-all sm:break-normal">{event.description}</p>
@@ -161,10 +290,10 @@ export default function Events() {
 
                 {/* Event Gallery */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[220px] w-full">
-                  {event.media.map((item, midx) => (
+                  {(event.media || []).map((item, midx) => (
                     <div 
                       key={midx} 
-                      className={`group relative rounded-[20px] overflow-hidden bg-app shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer ${getBentoClass(midx, event.media.length)} hover:-translate-y-1`} 
+                      className={`group relative rounded-[20px] overflow-hidden bg-app shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer ${getBentoClass(midx, (event.media || []).length)} hover:-translate-y-1`} 
                       onClick={() => openModal(event.media, midx)}
                     >
                        {item.type === 'video' ? (

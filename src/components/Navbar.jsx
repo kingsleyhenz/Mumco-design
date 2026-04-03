@@ -3,8 +3,13 @@ import { Link, useLocation } from 'react-router-dom'
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const { pathname } = useLocation()
   const menuRef = useRef(null)
+
+  useEffect(() => {
+    setIsAuthenticated(!!localStorage.getItem('mumco_token'))
+  }, [pathname]) // Re-check on navigation
 
   useEffect(() => {
     function onDoc(e) {
@@ -14,9 +19,14 @@ export default function Navbar() {
     return () => document.removeEventListener('click', onDoc)
   }, [open])
 
+  const handleLogout = () => {
+    localStorage.removeItem('mumco_token')
+    localStorage.removeItem('mumco_user')
+    window.location.href = '/'
+  }
+
   const links = [
     { to: '/', label: 'Home' },
-
     { to: '/events', label: 'Events' },
     { to: '/about', label: 'About' },
     { to: '/contact', label: 'Contact' },
@@ -58,9 +68,18 @@ export default function Navbar() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <Link to="/login" className="hidden md:inline-flex btn btn-primary text-sm py-2.5 px-4 rounded-xl">
-              Login
-            </Link>
+            {isAuthenticated ? (
+              <button
+                onClick={handleLogout}
+                className="hidden md:inline-flex px-5 py-2.5 rounded-xl border border-red-500/10 text-red-500 font-bold text-xs hover:bg-red-50 transition-colors uppercase tracking-widest"
+              >
+                Logout
+              </button>
+            ) : (
+              <Link to="/login" className="hidden md:inline-flex btn btn-primary text-sm py-2.5 px-6 rounded-xl shadow-lg">
+                Login
+              </Link>
+            )}
 
             <button
               className="md:hidden p-2 rounded-xl text-ink/85 hover:bg-white/70 border border-ink/10"
@@ -93,7 +112,16 @@ export default function Navbar() {
             </Link>
           ))}
           <div className="pt-2">
-            <Link to="/login" className="block w-full text-center btn btn-primary rounded-xl">Login</Link>
+            {isAuthenticated ? (
+              <button 
+                onClick={handleLogout}
+                className="block w-full py-3 rounded-xl text-red-500 font-bold border border-red-500/10 bg-red-50/50"
+              >
+                Logout
+              </button>
+            ) : (
+              <Link to="/login" className="block w-full text-center btn btn-primary rounded-xl" onClick={() => setOpen(false)}>Login</Link>
+            )}
           </div>
         </div>
       </div>
